@@ -983,9 +983,9 @@ void HTTHistograms::plot_HAZ_Histograms(const std::string & hName,
   h_A->Draw("same");
   h_Z->Draw("same");
   ///
-  l.AddEntry(h_h,"SM ggH125");
-  l.AddEntry(h_A,"MSSM A");
-  l.AddEntry(h_Z,"SM Z");
+  l.AddEntry(h_h,"ggH#rightarrow#tau#tau");
+  l.AddEntry(h_A,"ggA#rightarrow#tau#tau");
+  l.AddEntry(h_Z,"Z#rightarrow#tau#tau");
   l.Draw();
   //aLatex.DrawLatex(0.05,0.02,sysType.c_str());
   ///
