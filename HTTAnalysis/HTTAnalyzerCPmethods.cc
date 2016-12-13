@@ -68,7 +68,9 @@ void HTTAnalyzer::fillDecayPlaneAngle(const std::string & hNameSuffix, float eve
      }
   }
 
-  if(aTau.getProperty(PropertyEnum::decayMode)==tauDecay1ChargedPion0PiZero){
+  if(aTau.getProperty(PropertyEnum::decayMode)==tauDecay1ChargedPion0PiZero
+     || (isOneProng(aTau.getProperty(PropertyEnum::decayMode)) && tauLeadingTk.Pt()>25) 
+     ){
     float cosPhiNN =  tauPCA.Vect().Unit().Dot(muonPCA.Vect().Unit());
 
     myHistos_->fill1DHistogram("h1DPhi-nVectors"+hNameSuffix,angles.first,eventWeight);
@@ -117,7 +119,9 @@ void HTTAnalyzer::fillGenDecayPlaneAngle(const std::string & hNameSuffix, float 
   ///////////////////////////////////////////////////////////
   sysEffects::sysEffectsEnum sysType = sysEffects::NOMINAL_SVFIT;
 
-  if(aGenHadTau.getProperty(PropertyEnum::decayMode)==tauDecay1ChargedPion0PiZero){
+  if(aGenHadTau.getProperty(PropertyEnum::decayMode)==tauDecay1ChargedPion0PiZero
+     || (isOneProng(aGenHadTau.getProperty(PropertyEnum::decayMode)) && tauLeadingTk.Pt()>25)
+     ){
     float cosPhiNN =  muonPCA.Vect().Unit().Dot(tauPCA.Vect().Unit());
     myHistos_->fill1DHistogram("h1DCosPhiNN"+hNameSuffix,cosPhiNN);
     myHistos_->fill1DHistogram("h1DPhi-nVectors"+hNameSuffix,angles.first,eventWeight);

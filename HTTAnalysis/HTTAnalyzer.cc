@@ -356,7 +356,11 @@ bool HTTAnalyzer::analyze(const EventProxyBase& iEvent){
   bool goodGenDecayMode = goodDecayModes.first;
   bool goodRecoDecayMode = goodDecayModes.second;
 
-  if(goodGenDecayMode) fillGenDecayPlaneAngle(sampleName+"_GenNoOfflineSel", eventWeight);
+  if(goodGenDecayMode) {
+    fillGenDecayPlaneAngle(sampleName+"_GenNoOfflineSel", eventWeight);
+    if(aGenHadTau.getProperty(PropertyEnum::decayMode)==tauDecay1ChargedPion0PiZero)
+      fillGenDecayPlaneAngle(sampleName+"_GenNoOfflineSelPi", eventWeight);
+  }
 
   ///This stands for core selection, that is common to all regions.
   bool tauKinematics = aTau.getP4().Pt()>20 && fabs(aTau.getP4().Eta())<2.3;

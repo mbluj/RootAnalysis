@@ -579,6 +579,7 @@ void HTTHistograms::plotCPhistograms(unsigned int iCategory){
   plot_HAZ_Histograms("Phi-nVecIP-yTauPos",hNameSuffix+"_GenNoOfflineSel");
   plot_HAZ_Histograms("Phi-nVecIP",hNameSuffix+"_GenNoOfflineSel");
   plot_HAZ_Histograms("Phi-nVectors",hNameSuffix+"_GenNoOfflineSel");
+  plot_HAZ_Histograms("Phi-nVectors",hNameSuffix+"_GenNoOfflineSelPi");
 
   hNameSuffix =  "_OS_"+std::to_string(iCategory);
 
