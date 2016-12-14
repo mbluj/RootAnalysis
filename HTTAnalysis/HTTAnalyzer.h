@@ -61,6 +61,7 @@ class HTTAnalyzer: public Analyzer{
 		     antiiso_jet0,
 		     antiiso_boosted, antiiso_vbf,
 		     W, TT,
+		     inclusive,
 		     DUMMY //This must be the last one
   };
 
@@ -108,6 +109,7 @@ class HTTAnalyzer: public Analyzer{
     else if(iCategory==(int)HTTAnalyzer::antiiso_jet0) return "antiiso_jet0";
     else if(iCategory==(int)HTTAnalyzer::antiiso_boosted) return "antiiso_boosted";
     else if(iCategory==(int)HTTAnalyzer::antiiso_vbf) return "antiiso_vbf";
+    else if(iCategory==(int)HTTAnalyzer::inclusive) return "inclusive";
     return "Unknown";
   }
 

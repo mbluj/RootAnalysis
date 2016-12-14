@@ -595,6 +595,10 @@ void HTTHistograms::plotCPhistograms(unsigned int iCategory){
   plotnPCA("A"+hNameSuffix);
   plotnPCA("DYJets"+hNameSuffix);
   plotnPCA("WJets"+hNameSuffix);
+  plotnPCA("AODggH125"+hNameSuffix);
+  plotnPCA("AODA"+hNameSuffix);
+  plotnPCA("AODDYJets"+hNameSuffix);
+  plotnPCA("AODWJets"+hNameSuffix);
 
   plotPhiDecayPlanes("Phi-nVectorsggH125"+hNameSuffix);
   plotPhiDecayPlanes("Phi-nVectorsA"+hNameSuffix);
@@ -605,7 +609,9 @@ void HTTHistograms::plotCPhistograms(unsigned int iCategory){
   plotPhiDecayPlanes("Phi-nVecIPDYJets"+hNameSuffix);
 
   plotProfiles("hProfRecoVsMagGen","ggH125"+hNameSuffix);
+  plotProfiles("hProfGenVsMagReco","ggH125"+hNameSuffix);
   plotProfiles("hProfPhiVsMag","ggH125"+hNameSuffix);
+  plotProfiles("hProfPhiVsMagReco","ggH125"+hNameSuffix);
 
   plotVerticesPulls("h1DVxPullXggH125"+hNameSuffix);
   plotVerticesPulls("h1DVxPullYggH125"+hNameSuffix);
@@ -781,11 +787,19 @@ void HTTHistograms::plotProfiles(const std::string & hName,
     h1DGen->SetYTitle("<#hat{n}_{GEN} #bullet #hat{n}_{RECO}>");
 
     h1DGen->SetXTitle("|n_{GEN}|");
+    if(hName.find("VsMagReco")!=std::string::npos){
+      h1DGen->SetXTitle("<|n_{RECO}|>");
+    }
     h1DGen->GetYaxis()->SetTitleOffset(1.9);
     h1DGen->SetStats(kFALSE);
 
     if(hName.find("RecoVsMagGen")!=std::string::npos){
       h1DGen->SetYTitle("<|n_{RECO}|>");
+      h1DGen->SetMinimum(0);
+    }
+    if(hName.find("GenVsMagReco")!=std::string::npos){
+      h1DGen->SetXTitle("<|n_{RECO}|>");
+      h1DGen->SetYTitle("|n_{GEN}|");
       h1DGen->SetMinimum(0);
     }
     if(hName.find("MagVsPt")!=std::string::npos){
@@ -808,14 +822,19 @@ void HTTHistograms::plotProfiles(const std::string & hName,
     h1DRefit->Draw("same");
 
     if(hName.find("RecoVsMagGen")!=std::string::npos){
-      TF1 *line=new TF1("line","x",0,0.014);
-      line->Draw("same");
+      TF1 line("line","x",0,0.014);
+      line.Draw("same");
+    }
+    if(hName.find("GenVsMagReco")!=std::string::npos){
+      TF1 line("line","x",0,0.012);
+      line.Draw("same");
     }
 
     l.AddEntry(h1DGen,"Generator PV");
     l.AddEntry(h1DAOD,"AOD PV");
     l.AddEntry(h1DRefit,"Refitted PV");
     if(hName.find("RecoVsMagGen")!=std::string::npos) l.Draw();
+    if(hName.find("GenVsMagReco")!=std::string::npos) l.Draw();
     if(hName.find("PhiVsMag")!=std::string::npos) l.Draw();
 
     c.Print(TString::Format("fig_png/%s.png",(hName+sysType).c_str()).Data());

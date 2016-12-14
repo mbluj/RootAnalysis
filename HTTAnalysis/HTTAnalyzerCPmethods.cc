@@ -45,10 +45,10 @@ void HTTAnalyzer::fillDecayPlaneAngle(const std::string & hNameSuffix, float eve
     anglesIPRho = angleBetweenPlanes(tauLeadingTk, aTau.getNeutralP4(), muonTk, muonPCA);
   }
 
-  myHistos_->fillProfile("hProfRecoVsMagGen_"+hNameSuffix,
+  /*myHistos_->fillProfile("hProfRecoVsMagGen_"+hNameSuffix,
 			 aGenHadTau.getPCA().Mag(),
 			 tauPCA.Vect().Mag(),
-			 eventWeight);
+			 eventWeight);*/
 
   ///////////////////////////////////////////////////////////
   sysEffects::sysEffectsEnum sysType = sysEffects::NOMINAL_SVFIT;
@@ -69,7 +69,7 @@ void HTTAnalyzer::fillDecayPlaneAngle(const std::string & hNameSuffix, float eve
   }
 
   if(aTau.getProperty(PropertyEnum::decayMode)==tauDecay1ChargedPion0PiZero
-     || (isOneProng(aTau.getProperty(PropertyEnum::decayMode)) && tauLeadingTk.Pt()>25) 
+     || (isOneProng(aTau.getProperty(PropertyEnum::decayMode)) && tauLeadingTk.Pt()>20) 
      ){
     float cosPhiNN =  tauPCA.Vect().Unit().Dot(muonPCA.Vect().Unit());
 
@@ -82,9 +82,13 @@ void HTTAnalyzer::fillDecayPlaneAngle(const std::string & hNameSuffix, float eve
 
     myHistos_->fillProfile("hProfPhiVsMag"+hNameSuffix,aGenMuonTau.getPCA().Mag(),cosMuon);
     myHistos_->fillProfile("hProfPhiVsMag"+hNameSuffix,aGenHadTau.getPCA().Mag(),cosTau);
+    myHistos_->fillProfile("hProfPhiVsMagReco"+hNameSuffix,muonPCA.Vect().Mag(),cosMuon);
+    myHistos_->fillProfile("hProfPhiVsMagReco"+hNameSuffix,tauPCA.Vect().Mag(),cosTau);
 
     myHistos_->fillProfile("hProfRecoVsMagGen"+hNameSuffix,aGenMuonTau.getPCA().Mag(),muonPCA.Vect().Mag());
     myHistos_->fillProfile("hProfRecoVsMagGen"+hNameSuffix,aGenHadTau.getPCA().Mag(),tauPCA.Vect().Mag());
+    myHistos_->fillProfile("hProfGenVsMagReco"+hNameSuffix,muonPCA.Vect().Mag(),aGenMuonTau.getPCA().Mag());
+    myHistos_->fillProfile("hProfGenVsMagReco"+hNameSuffix,tauPCA.Vect().Mag(),aGenHadTau.getPCA().Mag());
 
     }
 }
@@ -120,7 +124,7 @@ void HTTAnalyzer::fillGenDecayPlaneAngle(const std::string & hNameSuffix, float 
   sysEffects::sysEffectsEnum sysType = sysEffects::NOMINAL_SVFIT;
 
   if(aGenHadTau.getProperty(PropertyEnum::decayMode)==tauDecay1ChargedPion0PiZero
-     || (isOneProng(aGenHadTau.getProperty(PropertyEnum::decayMode)) && tauLeadingTk.Pt()>25)
+     || (isOneProng(aGenHadTau.getProperty(PropertyEnum::decayMode)) && tauLeadingTk.Pt()>20)
      ){
     float cosPhiNN =  muonPCA.Vect().Unit().Dot(tauPCA.Vect().Unit());
     myHistos_->fill1DHistogram("h1DCosPhiNN"+hNameSuffix,cosPhiNN);
