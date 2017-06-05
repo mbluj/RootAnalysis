@@ -12,7 +12,7 @@
 #include "TreeAnalyzer.h"
 
 #include "EventProxyHTT.h"
-#include "HZZAnalyzer.h"
+#include "HH2B2MuAnalyzer.h"
 
 #include "TFile.h"
 #include "TStopwatch.h"
@@ -64,7 +64,7 @@ int main(int argc, char ** argv) {
 	 }
 
 	 if(processName.find("Analysis")!=std::string::npos)
-	   myAnalyzers.push_back(new HZZAnalyzer("HZZAnalyzer",decayModeName));	 
+	   myAnalyzers.push_back(new HH2B2MuAnalyzer("HH2B2MuAnalyzer",decayModeName));	 
 	 else{
 	   std::cout<<"Incorrect process name: "<<processName<<std::endl;
 	   return 1;

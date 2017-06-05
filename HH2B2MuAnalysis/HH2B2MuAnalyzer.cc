@@ -5,49 +5,49 @@
 #include "RooRealVar.h"
 #include "RooFormulaVar.h"
 
-#include "HZZAnalyzer.h"
-#include "HZZHistograms.h"
+#include "HH2B2MuAnalyzer.h"
+#include "HH2B2MuHistograms.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-HZZAnalyzer::HZZAnalyzer(const std::string & aName, const std::string & aDecayMode) : Analyzer(aName){
+HH2B2MuAnalyzer::HH2B2MuAnalyzer(const std::string & aName, const std::string & aDecayMode) : Analyzer(aName){
 
 }
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-HZZAnalyzer::~HZZAnalyzer(){
+HH2B2MuAnalyzer::~HH2B2MuAnalyzer(){
 
         if(myHistos_) delete myHistos_;
 
 }
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-Analyzer* HZZAnalyzer::clone() const {
+Analyzer* HH2B2MuAnalyzer::clone() const {
 
         std::string myDecayMode = "4Mu";
-        HZZAnalyzer* clone = new HZZAnalyzer(name(),myDecayMode);
+        HH2B2MuAnalyzer* clone = new HH2B2MuAnalyzer(name(),myDecayMode);
         clone->setHistos(myHistos_);
         return clone;
 
 };
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-void HZZAnalyzer::initialize(TDirectory* aDir,
+void HH2B2MuAnalyzer::initialize(TDirectory* aDir,
                              pat::strbitset *aSelections){
 
         mySelections_ = aSelections;
 
-        myHistos_ = new HZZHistograms(aDir, selectionFlavours_);
+        myHistos_ = new HH2B2MuHistograms(aDir, selectionFlavours_);
 }
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-void HZZAnalyzer::finalize(){
+void HH2B2MuAnalyzer::finalize(){
 
         myHistos_->finalizeHistograms();
 }
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-void HZZAnalyzer::addBranch(TTree *tree){
+void HH2B2MuAnalyzer::addBranch(TTree *tree){
 
         std::string leafList = "mass4Mu/f:massZ1/f:massZ2/f";
         leafList+=":muon1ID/f:muon2ID/f:muon3ID/f:muon4ID/f";
@@ -60,7 +60,7 @@ void HZZAnalyzer::addBranch(TTree *tree){
 }
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-bool HZZAnalyzer::analyze(const EventProxyBase& iEvent){
+bool HH2B2MuAnalyzer::analyze(const EventProxyBase& iEvent){
 
         const EventProxyHTT & myEventProxy = static_cast<const EventProxyHTT&>(iEvent);
         std::string fileName = myEventProxy.getTTree()->GetCurrentFile()->GetName();

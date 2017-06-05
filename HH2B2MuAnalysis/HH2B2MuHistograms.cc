@@ -2,7 +2,7 @@
 #include <cmath>
 
 #include "commonUtils.h"
-#include "HZZHistograms.h"
+#include "HH2B2MuHistograms.h"
 #include "TCanvas.h"
 #include "TLegend.h"
 #include "TString.h"
@@ -17,21 +17,21 @@
 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-HZZHistograms::HZZHistograms(std::string fileName, int opt){
+HH2B2MuHistograms::HH2B2MuHistograms(std::string fileName, int opt){
 
   AnalysisHistograms::init(fileName);
 
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-HZZHistograms::HZZHistograms(TDirectory *myDir){
+HH2B2MuHistograms::HH2B2MuHistograms(TDirectory *myDir){
 
   AnalysisHistograms::init(myDir);
 
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-HZZHistograms::HZZHistograms(TDirectory *myDir, const std::vector<std::string> & flavours){
+HH2B2MuHistograms::HH2B2MuHistograms(TDirectory *myDir, const std::vector<std::string> & flavours){
  selectionFlavours_ = flavours;
 
 AnalysisHistograms::init(myDir);
@@ -39,10 +39,10 @@ AnalysisHistograms::init(myDir);
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-HZZHistograms::~HZZHistograms(){ }
+HH2B2MuHistograms::~HH2B2MuHistograms(){ }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-std::string HZZHistograms::getTemplateName(const std::string& name){
+std::string HH2B2MuHistograms::getTemplateName(const std::string& name){
 
   std::string templateName = "";
 
@@ -54,7 +54,7 @@ std::string HZZHistograms::getTemplateName(const std::string& name){
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-void HZZHistograms::defineHistograms(){
+void HH2B2MuHistograms::defineHistograms(){
 
  using namespace std;
 
@@ -67,7 +67,7 @@ void HZZHistograms::defineHistograms(){
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-void HZZHistograms::finalizeHistograms(){
+void HH2B2MuHistograms::finalizeHistograms(){
 
   AnalysisHistograms::finalizeHistograms();
 
@@ -78,7 +78,7 @@ void HZZHistograms::finalizeHistograms(){
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-void HZZHistograms::plotAnyHistogram(const std::string & hName){
+void HH2B2MuHistograms::plotAnyHistogram(const std::string & hName){
 
    TCanvas* c = new TCanvas("AnyHistogram","AnyHistogram",
 			   460,500);

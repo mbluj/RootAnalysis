@@ -1,5 +1,5 @@
-#ifndef RootAnalysis_HZZAnalyzer_H
-#define RootAnalysis_HZZAnalyzer_H
+#ifndef RootAnalysis_HH2B2MuAnalyzer_H
+#define RootAnalysis_HH2B2MuAnalyzer_H
 
 #include <string>
 #include <vector>
@@ -18,7 +18,7 @@
 
 #include "Analyzer.h"
 
-class HZZHistograms;
+class HH2B2MuHistograms;
 
 class TH1F;
 class TH2F;
@@ -38,13 +38,13 @@ class TLorentzVector;
   } ENTRY;
 
 
-class HZZAnalyzer: public Analyzer{
+class HH2B2MuAnalyzer: public Analyzer{
 
  public:
 
-  HZZAnalyzer(const std::string & aName, const std::string & aDecayMode = "None");
+  HH2B2MuAnalyzer(const std::string & aName, const std::string & aDecayMode = "None");
 
-  virtual ~HZZAnalyzer();
+  virtual ~HH2B2MuAnalyzer();
 
   ///Initialize the analyzer
   virtual void initialize(TDirectory* aDir,
@@ -75,12 +75,12 @@ class HZZAnalyzer: public Analyzer{
  private:
 
 
-  void setHistos(HZZHistograms *histos) { myHistos_ = histos;};
+  void setHistos(HH2B2MuHistograms *histos) { myHistos_ = histos;};
 
   ///Histograms storage.
-  HZZHistograms *myHistos_;
+  HH2B2MuHistograms *myHistos_;
 
-  //should this HZZAnalyzer be able to filter events
+  //should this HH2B2MuAnalyzer be able to filter events
   bool filterEvent_;
 
   ///Reconstructed objects selected for given event.
