@@ -57,7 +57,7 @@ int main(int argc, char ** argv) {
 	 EventProxyHTT *myEvent = new EventProxyHTT();
 
 	 std::string decayModeName;
-	 if(processName=="Analysis4Mu") decayModeName = "4Mu";
+	 if(processName=="Analysis4Mu") decayModeName = "HH";
 	 else{
 	   std::cout<<"Incorrect process name: "<<processName<<std::endl;
 	   return 1;
