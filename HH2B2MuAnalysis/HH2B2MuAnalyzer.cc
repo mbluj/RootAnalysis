@@ -24,7 +24,7 @@ HH2B2MuAnalyzer::~HH2B2MuAnalyzer(){
 //////////////////////////////////////////////////////////////////////////////
 Analyzer* HH2B2MuAnalyzer::clone() const {
 
-        std::string myDecayMode = "4Mu";
+        std::string myDecayMode = "HH";
         HH2B2MuAnalyzer* clone = new HH2B2MuAnalyzer(name(),myDecayMode);
         clone->setHistos(myHistos_);
         return clone;
