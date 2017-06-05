@@ -25,6 +25,6 @@ AC_CONFIG_FILES(Makefile
                 OTFAnalysis/Makefile
 		            CPwithPytia8/Makefile
 		            HTTAnalysis/Makefile
-                HZZAnalysis/Makefile)
+                HH2B2MuAnalysis/Makefile)
 
 AC_OUTPUT
