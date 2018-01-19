@@ -83,7 +83,7 @@ std::vector<HTTParticle> HTTAnalyzer::getSeparatedJets(const EventProxyHTT & myE
         for(auto aJet : *myEventProxy.jets) {
                 float dRLeg2 = aJet.getP4().DeltaR(aLeg2.getP4());
                 float dRLeg1 = aJet.getP4().DeltaR(aLeg1.getP4());
-                bool loosePFJetID = aJet.getProperty(PropertyEnum::PFjetID)>=1;
+                bool loosePFJetID = aJet.getProperty(PropertyEnum::jetId)>=1;
                 bool jetEtaCut = std::abs(aJet.getP4().Eta())<4.7;
                 if(dRLeg1>deltaR && dRLeg2>deltaR && loosePFJetID && jetEtaCut) separatedJets.push_back(aJet);
         }
@@ -112,7 +112,7 @@ void HTTAnalyzer::setAnalysisObjects(const EventProxyHTT & myEventProxy){
 	aBJet1 = HTTParticle();
 	for(auto itJet: aSeparatedJets) {
           if(std::abs(itJet.getP4().Eta())<2.4 &&
-             itJet.getProperty(PropertyEnum::bCSVscore)>0.8484 && //Medium WP
+             itJet.getProperty(PropertyEnum::btagCSVV2)>0.8484 && //Medium WP
 	     myChannelSpecifics->promoteBJet(itJet)
 	     ){
 	    aBJet1 = itJet;
@@ -148,7 +148,7 @@ void HTTAnalyzer::fillControlHistos(const std::string & hNameSuffix, float event
         myHistos_->fill2DUnrolledHistogram("h1DUnRollGammaSumMassSV"+hNameSuffix, aPair.getP4(aSystEffect).M(), gammaSum,eventWeight);
         myHistos_->fill2DUnrolledHistogram("h1DUnRollHiggsPtMassSV"+hNameSuffix, aPair.getP4(aSystEffect).M(), higgsPt, eventWeight);
         myHistos_->fill2DUnrolledHistogram("h1DUnRollMjjMassSV"+hNameSuffix, aPair.getP4(aSystEffect).M(), jetsMass, eventWeight);
-        myHistos_->fill1DHistogram("h1DIso"+hNameSuffix,aLeg1.getProperty(PropertyEnum::combreliso),eventWeight);
+        myHistos_->fill1DHistogram("h1DIso"+hNameSuffix,aLeg1.getProperty(PropertyEnum::pfRelIso04_all),eventWeight);
         if(aSystEffect!=HTTAnalysis::NOMINAL) return;
 
         fillDecayPlaneAngle(hNameSuffix, eventWeight, aSystEffect);
@@ -166,9 +166,9 @@ void HTTAnalyzer::fillControlHistos(const std::string & hNameSuffix, float event
         myHistos_->fill1DHistogram("h1DPtLeg1"+hNameSuffix,aLeg1.getP4(aSystEffect).Pt(),eventWeight);
         myHistos_->fill1DHistogram("h1DEtaLeg1"+hNameSuffix,aLeg1.getP4(aSystEffect).Eta(),eventWeight);
         myHistos_->fill1DHistogram("h1DPhiLeg1"+hNameSuffix,aLeg1.getP4(aSystEffect).Phi(),eventWeight);
-        myHistos_->fill1DHistogram("h1DIsoLeg1"+hNameSuffix,aLeg1.getProperty(PropertyEnum::combreliso),eventWeight);
-        myHistos_->fill1DHistogram("h1DIDLeg1"+hNameSuffix,aLeg1.getProperty(PropertyEnum::byIsolationMVArun2v1DBoldDMwLTraw),eventWeight);
-        myHistos_->fill1DHistogram("h1DPtLeg1LeadingTk"+hNameSuffix,aLeg1.getProperty(PropertyEnum::leadChargedParticlePt),eventWeight);
+        myHistos_->fill1DHistogram("h1DIsoLeg1"+hNameSuffix,aLeg1.getProperty(PropertyEnum::pfRelIso04_all),eventWeight);
+        myHistos_->fill1DHistogram("h1DIDLeg1"+hNameSuffix,aLeg1.getProperty(PropertyEnum::rawMVAoldDM),eventWeight);
+        myHistos_->fill1DHistogram("h1DPtLeg1LeadingTk"+hNameSuffix,aLeg1.getProperty(PropertyEnum::leadTkPtOverTauPt)*aLeg1.getP4().Pt(),eventWeight);
         myHistos_->fill1DHistogram("h1DStatsLeg1DecayMode"+hNameSuffix, aLeg1.getProperty(PropertyEnum::decayMode), eventWeight);
         myHistos_->fill1DHistogram("h1DnPCALeg1"+hNameSuffix,aLeg1.getPCARefitPV().Mag(),eventWeight);
 
@@ -176,10 +176,10 @@ void HTTAnalyzer::fillControlHistos(const std::string & hNameSuffix, float event
         myHistos_->fill1DHistogram("h1DPtLeg2"+hNameSuffix,aLeg2.getP4(aSystEffect).Pt(),eventWeight);
         myHistos_->fill1DHistogram("h1DEtaLeg2"+hNameSuffix,aLeg2.getP4(aSystEffect).Eta(),eventWeight);
         myHistos_->fill1DHistogram("h1DPhiLeg2"+hNameSuffix,aLeg2.getP4(aSystEffect).Phi(),eventWeight);
-        myHistos_->fill1DHistogram("h1DIDLeg2"+hNameSuffix,aLeg2.getProperty(PropertyEnum::byIsolationMVArun2v1DBoldDMwLTraw),eventWeight);
+        myHistos_->fill1DHistogram("h1DIDLeg2"+hNameSuffix,aLeg2.getProperty(PropertyEnum::rawMVAoldDM),eventWeight);
         myHistos_->fill1DHistogram("h1DStatsLeg2DecayMode"+hNameSuffix, aLeg2.getProperty(PropertyEnum::decayMode), eventWeight);
         myHistos_->fill1DHistogram("h1DnPCALeg2"+hNameSuffix,aLeg2.getPCARefitPV().Mag(),eventWeight);
-        myHistos_->fill1DHistogram("h1DPtLeg2LeadingTk"+hNameSuffix,aLeg2.getProperty(PropertyEnum::leadChargedParticlePt),eventWeight);
+        myHistos_->fill1DHistogram("h1DPtLeg2LeadingTk"+hNameSuffix,aLeg2.getProperty(PropertyEnum::leadTkPtOverTauPt)*aLeg2.getP4().Pt(),eventWeight);
         myHistos_->fill1DHistogram("h1DPtLeg1Leg2MET"+hNameSuffix,higgsPt,eventWeight);
 
         ///Fill jets info
@@ -187,7 +187,7 @@ void HTTAnalyzer::fillControlHistos(const std::string & hNameSuffix, float event
         if(nJets30>0) {
                 myHistos_->fill1DHistogram("h1DPtLeadingJet"+hNameSuffix,aJet1.getP4(aSystEffect).Pt(),eventWeight);
                 myHistos_->fill1DHistogram("h1DEtaLeadingJet"+hNameSuffix,aJet1.getP4(aSystEffect).Eta(),eventWeight);
-                myHistos_->fill1DHistogram("h1DCSVBtagLeadingJet"+hNameSuffix,aJet1.getProperty(PropertyEnum::bCSVscore),eventWeight);
+                myHistos_->fill1DHistogram("h1DCSVBtagLeadingJet"+hNameSuffix,aJet1.getProperty(PropertyEnum::btagCSVV2),eventWeight);
         }
         if(nJets30>1) {
                 myHistos_->fill1DHistogram("h1DBigMass2Jet"+hNameSuffix,jetsMass,eventWeight);

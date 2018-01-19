@@ -336,9 +336,9 @@ bool ChannelSpecifics::promoteBJet(const HTTParticle &jet,
   if(!reader) initializeBTagCorrections();
 
   BTagEntry::JetFlavor jetFlavour;
-  if(std::abs(jet.getProperty(PropertyEnum::Flavour))==5)//b-quark
+  if(std::abs(jet.getProperty(PropertyEnum::partonFlavour))==5)//b-quark
     jetFlavour = BTagEntry::FLAV_B;
-  else if(std::abs(jet.getProperty(PropertyEnum::Flavour))==4)//c-quark
+  else if(std::abs(jet.getProperty(PropertyEnum::partonFlavour))==4)//c-quark
     jetFlavour = BTagEntry::FLAV_C;
   else //light quark, gluon or undefined
     jetFlavour = BTagEntry::FLAV_UDSG;
@@ -347,14 +347,14 @@ bool ChannelSpecifics::promoteBJet(const HTTParticle &jet,
 					    jetFlavour,
 					    jet.getP4(aSystEffect).Eta(),
 					    jet.getP4(aSystEffect).Pt()
-					    //,jet.getProperty(PropertyEnum::bCSVscore) //MB: it is not needed when WP is definied
+					    //,jet.getProperty(PropertyEnum::btagCSVV2) //MB: it is not needed when WP is definied
 					    );
   rand_->SetSeed((int)((jet.getP4().Eta()+5)*100000));
   double rand_num = rand_->Rndm();
   /*
   std::cout<<"\tbtag_SF(flav,CSVv2): "<<btag_SF
 	   <<"("<<jetFlavour<<","
-	   <<jet.getProperty(PropertyEnum::bCSVscore)<<")"<<std::endl;
+	   <<jet.getProperty(PropertyEnum::btagCSVV2)<<")"<<std::endl;
   std::cout<<"\tbtag_rand_num: "<<rand_num<<std::endl;
   */
   if(btag_SF>1){

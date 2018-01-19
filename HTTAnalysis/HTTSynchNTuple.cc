@@ -102,6 +102,8 @@ void HTTSynchNTuple::clearTTreeVariables(){
   //weights
   effweight = -999;
   weight = -999;
+  topWeight_run1 = -999;
+  zPtReweightWeight = -999;  
   //Pielup
   npv = -999;
   npu = -999;
@@ -258,6 +260,25 @@ void HTTSynchNTuple::clearTTreeVariables(){
   trg_singletau_2 = 0;
   trg_doubletau = 0;
   trg_muonelectron = 0;
+  trg_mutaucross = 0;
+  //Filters
+  passBadMuonFilter = 0;
+  passBadChargedHadronFilter = 0;
+  flagHBHENoiseFilter = 0;
+  flagHBHENoiseIsoFilter = 0;
+  flagEcalDeadCellTriggerPrimitiveFilter = 0;
+  flagGoodVertices = 0;
+  flagEeBadScFilter = 0;
+  flagGlobalTightHalo2016Filter = 0;
+  Flag_badMuons = 0;
+  Flag_duplicateMuons = 0;
+  //others
+  gen_Mll = -999;
+  gen_ll_px = 0;
+  gen_ll_py = 0;
+  gen_top_pt_1 = -999;
+  gen_top_pt_2 = -999;
+
 }
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -270,6 +291,8 @@ void HTTSynchNTuple::addBranch(TTree *tree){
   //weights
   tree->Branch("effweight",&effweight);
   tree->Branch("weight",&weight);
+  tree->Branch("topWeight_run1",&topWeight_run1);
+  tree->Branch("zPtReweightWeight",&zPtReweightWeight);
   //Pielup
   tree->Branch("npv",&npv);
   tree->Branch("npu",&npu);
@@ -427,6 +450,24 @@ void HTTSynchNTuple::addBranch(TTree *tree){
   tree->Branch("trg_singletau_2",&trg_singletau_2);
   tree->Branch("trg_doubletau",&trg_doubletau);
   tree->Branch("trg_muonelectron",&trg_muonelectron);
+  tree->Branch("trg_mutaucross",&trg_mutaucross);
+  //Filters
+  tree->Branch("passBadMuonFilter",&passBadMuonFilter);
+  tree->Branch("passBadChargedHadronFilter",&passBadChargedHadronFilter);
+  tree->Branch("flagHBHENoiseFilter",&flagHBHENoiseFilter);
+  tree->Branch("flagHBHENoiseIsoFilter",&flagHBHENoiseIsoFilter);
+  tree->Branch("flagEcalDeadCellTriggerPrimitiveFilter",&flagEcalDeadCellTriggerPrimitiveFilter);
+  tree->Branch("flagGoodVertices",&flagGoodVertices);
+  tree->Branch("flagEeBadScFilter",&flagEeBadScFilter);
+  tree->Branch("flagGlobalTightHalo2016Filter",&flagGlobalTightHalo2016Filter);
+  tree->Branch("Flag_badMuons",&Flag_badMuons);
+  tree->Branch("Flag_duplicateMuons",&Flag_duplicateMuons);
+  //other
+  tree->Branch("gen_Mll",&gen_Mll);
+  tree->Branch("gen_ll_px",&gen_ll_px);
+  tree->Branch("gen_ll_py",&gen_ll_py);
+  tree->Branch("gen_top_pt_1",&gen_top_pt_1);
+  tree->Branch("gen_top_pt_2",&gen_top_pt_2);
 
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -498,13 +539,36 @@ bool HTTSynchNTuple::analyze(const EventProxyBase& iEvent){
 void HTTSynchNTuple::fillEventID(const HTTEvent &event){
 
   run = event.getRunId();
-  lumi = 0; //FIXME, not in ntuples
+  lumi = event.getLSId();
   evt = event.getEventId();
   //Pielup
   npv = event.getNPV();
   npu = event.getNPU();
   rho = 0; //FIXME, not in ntuples
   puweight = getPUWeight(npu);
+  //ptweights (Z or top)
+  zPtReweightWeight = event.getPtReWeight();
+  topWeight_run1 = event.getPtReWeight();
+  //filters
+  int metFilters = (int)event.getMETFilterDecision();
+  flagHBHENoiseFilter = ( (metFilters & 1<<0) == 1<<0 );
+  flagHBHENoiseIsoFilter = ( (metFilters & 1<<1) == 1<<1 );
+  flagEcalDeadCellTriggerPrimitiveFilter = ( (metFilters & 1<<2) == 1<<2 );
+  flagGoodVertices = ( (metFilters & 1<<3) == 1<<3 );
+  flagEeBadScFilter = ( (metFilters & 1<<4) == 1<<4 );
+  flagGlobalTightHalo2016Filter = ( (metFilters & 1<<5) == 1<<5 );
+  passBadChargedHadronFilter = ( (metFilters & 1<<6) == 1<<6 );
+  passBadMuonFilter = ( (metFilters & 1<<7) == 1<<7 );
+  //other
+  TLorentzVector bosP4 = event.getGenBosonP4();
+  gen_Mll = bosP4.M();
+  gen_ll_px = bosP4.Px();
+  gen_ll_py = bosP4.Py();
+  /*
+  gen_top_pt_1=0;
+  gen_top_pt_2=0;
+  */
+
 }
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -553,12 +617,13 @@ void HTTSynchNTuple::fillLegsSpecific(const HTTParticle &leg1, const HTTParticle
   if(decayMode_=="MuTau"){
     //Specific implementation for the mu+tau decay channel
     //Leg1: muon
-    iso_1 =  leg1.getProperty(PropertyEnum::combreliso);
+    iso_1 =  leg1.getProperty(PropertyEnum::pfRelIso04_all);
+    //iso_1 =  leg1.getProperty(PropertyEnum::pfRelIso03_all);
     //weights
     int iBin;
     iBin = h3DMuonTrgCorrections->FindBin(std::min(pt_1,(Float_t)999.9), eta_1, std::min(iso_1,(Float_t)0.499));
     trigweight_1 = h3DMuonTrgCorrections->GetBinContent(iBin);
-    if(pt_1<23){//xtrigger mu-tau
+    if(pt_1<=23){//xtrigger mu-tau
       iBin = h3DMuonXTrgCorrections->FindBin(std::min(pt_1,(Float_t)999.9), eta_1, std::min(iso_1,(Float_t)0.299));
       trigweight_1 = h3DMuonXTrgCorrections->GetBinContent(iBin);      
     }
@@ -569,15 +634,19 @@ void HTTSynchNTuple::fillLegsSpecific(const HTTParticle &leg1, const HTTParticle
     iBin = h1DMuonTrkCorrections->FindBin(eta_1);
     trackingweight_1 = h1DMuonTrkCorrections->GetBinContent(iBin);
     //trigger
-    trg_singlemuon = ( leg1.hasTriggerMatch(TriggerEnum::HLT_IsoMu22) ||
-		       leg1.hasTriggerMatch(TriggerEnum::HLT_IsoTkMu22) ||
-		       leg1.hasTriggerMatch(TriggerEnum::HLT_IsoMu22_eta2p1) ||
-		       leg1.hasTriggerMatch(TriggerEnum::HLT_IsoTkMu22_eta2p1) );
+    trg_singlemuon = pt_1>23 ? ( leg1.hasTriggerMatch(TriggerEnum::HLT_IsoMu22) ||
+				 leg1.hasTriggerMatch(TriggerEnum::HLT_IsoTkMu22) ||
+				 leg1.hasTriggerMatch(TriggerEnum::HLT_IsoMu22_eta2p1) ||
+				 leg1.hasTriggerMatch(TriggerEnum::HLT_IsoTkMu22_eta2p1) )
+                             : 0;
 
     //Leg2: tau
-    iso_2 = leg2.getProperty(PropertyEnum::byIsolationMVArun2v1DBoldDMwLTraw);
-    byCombinedIsolationDeltaBetaCorrRaw3Hits_2 = leg2.getProperty(PropertyEnum::byCombinedIsolationDeltaBetaCorrRaw3Hits);
-    int TauID = (int)leg2.getProperty(PropertyEnum::tauID);
+    iso_2 = leg2.getProperty(PropertyEnum::rawMVAoldDM);
+    byCombinedIsolationDeltaBetaCorrRaw3Hits_2 = leg2.getProperty(PropertyEnum::rawIso);
+    int TauID = (int)leg2.getProperty(PropertyEnum::idAntiMu);
+    TauID += (int)std::pow(2,HTTEvent::againstEIdOffset)*(int)leg2.getProperty(PropertyEnum::idAntiEle);
+    TauID += (int)std::pow(2,HTTEvent::mvaIsoIdOffset)*(int)leg2.getProperty(PropertyEnum::idMVAoldDM);
+
     againstElectronLooseMVA6_2 = idMasks_->find("againstElectronLooseMVA6")!=idMasks_->end() ?
       (TauID & idMasks_->find("againstElectronLooseMVA6")->second) == idMasks_->find("againstElectronLooseMVA6")->second :
       0;
@@ -616,7 +685,7 @@ void HTTSynchNTuple::fillLegsSpecific(const HTTParticle &leg1, const HTTParticle
     tau_decay_mode_2 = leg2.getProperty(PropertyEnum::decayMode);
     decayModeFindingOldDMs_2 = (tau_decay_mode_2==0 || tau_decay_mode_2==1 || tau_decay_mode_2==2 || tau_decay_mode_2==10); //FIXME: is it possible to take ID directly?
     trigweight_2 = 1; //1, single mu
-    if(pt_1<23){//xtrigger mu-tau
+    if(pt_1<=23){//xtrigger mu-tau
       if(gen_match_2==5){ //genuine tau
 	iBin = h2DTauXTrgGenuineCorrections->FindBin(std::min(pt_2,(Float_t)999.9),eta_2);
 	trigweight_2 = h2DTauXTrgGenuineCorrections->GetBinContent(iBin);
@@ -628,17 +697,25 @@ void HTTSynchNTuple::fillLegsSpecific(const HTTParticle &leg1, const HTTParticle
     }
     idisoweight_2 = (gen_match_2==5 ? 0.95 : 1); //0.95 for genuine tau, otherwise 1
     trackingweight_2 = 1; //1 for tau
+    //single-tau trigger
     trg_singletau_1 = leg2.hasTriggerMatch(TriggerEnum::HLT_VLooseIsoPFTau120_Trk50_eta2p1);
     trg_singletau_2 = leg2.hasTriggerMatch(TriggerEnum::HLT_VLooseIsoPFTau140_Trk50_eta2p1);
+    //mu-tau cross-trigger
+    trg_mutaucross =  pt_1>23 ? 0 : ( ( leg1.hasTriggerMatch(TriggerEnum::HLT_IsoMu19_eta2p1_LooseIsoPFTau20) && leg2.hasTriggerMatch(TriggerEnum::HLT_IsoMu19_eta2p1_LooseIsoPFTau20) ) ||
+				      ( leg1.hasTriggerMatch(TriggerEnum::HLT_IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1) && leg2.hasTriggerMatch(TriggerEnum::HLT_IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1) ) ||
+				      ( leg1.hasTriggerMatch(TriggerEnum::HLT_IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1) && leg2.hasTriggerMatch(TriggerEnum::HLT_IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1) ) ||
+				      false);
 
     return;
   }
   else if(decayMode_=="TauTau"){
     //Specific implementation for the tau+tau decay channel
     //Leg1: leading tau
-    iso_1 = leg1.getProperty(PropertyEnum::byIsolationMVArun2v1DBoldDMwLTraw);
-    byCombinedIsolationDeltaBetaCorrRaw3Hits_1 = leg1.getProperty(PropertyEnum::byCombinedIsolationDeltaBetaCorrRaw3Hits);
-    int TauID = (int)leg1.getProperty(PropertyEnum::tauID);
+    iso_1 = leg1.getProperty(PropertyEnum::rawMVAoldDM);
+    byCombinedIsolationDeltaBetaCorrRaw3Hits_1 = leg1.getProperty(PropertyEnum::rawIso);
+    int TauID = (int)leg1.getProperty(PropertyEnum::idAntiMu);
+    TauID += (int)std::pow(2,HTTEvent::againstEIdOffset)*(int)leg1.getProperty(PropertyEnum::idAntiEle);
+    TauID += (int)std::pow(2,HTTEvent::mvaIsoIdOffset)*(int)leg1.getProperty(PropertyEnum::idMVAoldDM);
     againstElectronLooseMVA6_1 = idMasks_->find("againstElectronLooseMVA6")!=idMasks_->end() ?
       (TauID & idMasks_->find("againstElectronLooseMVA6")->second) == idMasks_->find("againstElectronLooseMVA6")->second :
       0;
@@ -693,9 +770,11 @@ void HTTSynchNTuple::fillLegsSpecific(const HTTParticle &leg1, const HTTParticle
     trackingweight_1 = 1;//1 for tau
 
     //Leg2: trailing tau
-    iso_2 = leg2.getProperty(PropertyEnum::byIsolationMVArun2v1DBoldDMwLTraw);
-    byCombinedIsolationDeltaBetaCorrRaw3Hits_2 = leg2.getProperty(PropertyEnum::byCombinedIsolationDeltaBetaCorrRaw3Hits);
-    TauID = (int)leg2.getProperty(PropertyEnum::tauID);
+    iso_2 = leg2.getProperty(PropertyEnum::rawMVAoldDM);
+    byCombinedIsolationDeltaBetaCorrRaw3Hits_2 = leg2.getProperty(PropertyEnum::rawIso);
+    TauID = (int)leg2.getProperty(PropertyEnum::idAntiMu);
+    TauID += (int)std::pow(2,HTTEvent::againstEIdOffset)*(int)leg2.getProperty(PropertyEnum::idAntiEle);
+    TauID += (int)std::pow(2,HTTEvent::mvaIsoIdOffset)*(int)leg2.getProperty(PropertyEnum::idMVAoldDM);
     againstElectronLooseMVA6_2 = idMasks_->find("againstElectronLooseMVA6")!=idMasks_->end() ?
       (TauID & idMasks_->find("againstElectronLooseMVA6")->second) == idMasks_->find("againstElectronLooseMVA6")->second :
       0;
@@ -762,12 +841,12 @@ void HTTSynchNTuple::fillLegsSpecific(const HTTParticle &leg1, const HTTParticle
   else if(decayMode_=="MuMu"){
     //Specific implementation for the mu+mu decay channel
     //Leg1: leading muon
-    iso_1 =  leg1.getProperty(PropertyEnum::combreliso);
+    iso_1 =  leg1.getProperty(PropertyEnum::pfRelIso04_all);
     trigweight_1 = 1; //FIXME, to be computed
     idisoweight_1 = 1; //FIXME
     trackingweight_1 = 1; //FIXME
     //Leg2: trailing muon
-    iso_2 =  leg2.getProperty(PropertyEnum::combreliso);
+    iso_2 =  leg2.getProperty(PropertyEnum::pfRelIso04_all);
     trigweight_2 = 1; //FIXME, to be computed
     idisoweight_2 = 1; //FIXME
     trackingweight_2 = 1; //FIXME
@@ -787,14 +866,14 @@ void HTTSynchNTuple::fillPair(const HTTEvent &event, HTTPair &pair){
 
   //MET
   TLorentzVector pfmetP4(event.getMET().X(), event.getMET().Y(), 0, event.getMET().Mod());
-  pfmet = event.getMET().Mod();
-  pfmetphi = event.getMET().Phi_mpi_pi(event.getMET().Phi());
+  pfmet = pfmetP4.Pt();
+  pfmetphi = pfmetP4.Phi();
   pfmt_1 = TMath::Sqrt(2.*leg1P4.Pt()*pfmetP4.Pt()*(1.-TMath::Cos(leg1P4.Phi()-pfmetP4.Phi())));
   pfmt_2 = TMath::Sqrt(2.*leg2P4.Pt()*pfmetP4.Pt()*(1.-TMath::Cos(leg2P4.Phi()-pfmetP4.Phi())));
   //Pair met: by default called MVAMET which can be wrong...
   TLorentzVector mvametP4(pair.getMET().X(), pair.getMET().Y(), 0, pair.getMET().Mod());
-  mvamet = pair.getMET().Mod();
-  mvametphi = pair.getMET().Phi_mpi_pi(pair.getMET().Phi());
+  mvamet = mvametP4.Pt();
+  mvametphi = mvametP4.Phi();
   met = mvamet;
   metphi = mvametphi;
   mt_1 = TMath::Sqrt(2.*leg1P4.Pt()*mvametP4.Pt()*(1.-TMath::Cos(leg1P4.Phi()-mvametP4.Phi())));
@@ -843,7 +922,7 @@ void HTTSynchNTuple::fillJets(const std::vector<HTTParticle> &jets){
       njets++;
     if(std::abs(jets.at(iJet).getP4().Eta())<2.4 &&
        jets.at(iJet).getP4().Pt()>20 &&
-       jets.at(iJet).getProperty(PropertyEnum::bCSVscore)>0.8484 && //FIXME 0.8484 Correct??
+       jets.at(iJet).getProperty(PropertyEnum::btagCSVV2)>0.8484 && //FIXME 0.8484 Correct??
        promoteBJet(jets.at(iJet)) &&
        true){
       nbtag++;
@@ -857,8 +936,8 @@ void HTTSynchNTuple::fillJets(const std::vector<HTTParticle> &jets){
   jpt_1 = aLeadingJet.getP4().Pt();
   jeta_1 = aLeadingJet.getP4().Eta();
   jphi_1 = aLeadingJet.getP4().Phi();
-  jrawf_1 =  aLeadingJet.getProperty(PropertyEnum::rawPt)/aLeadingJet.getP4().Pt();
-  jmva_1 = aLeadingJet.getProperty(PropertyEnum::PUJetID);
+  jrawf_1 =  1. - aLeadingJet.getProperty(PropertyEnum::rawFactor);
+  jmva_1 = aLeadingJet.getProperty(PropertyEnum::puId);
 
   if(jets.size()>1){
     HTTParticle aTrailingJet = jets.at(1);
@@ -867,8 +946,8 @@ void HTTSynchNTuple::fillJets(const std::vector<HTTParticle> &jets){
     jpt_2 = aTrailingJet.getP4().Pt();
     jeta_2 = aTrailingJet.getP4().Eta();
     jphi_2 = aTrailingJet.getP4().Phi();
-    jrawf_2 = aTrailingJet.getProperty(PropertyEnum::rawPt)/aTrailingJet.getP4().Pt();
-    jmva_2 = aTrailingJet.getProperty(PropertyEnum::PUJetID);
+    jrawf_2 = 1. - aTrailingJet.getProperty(PropertyEnum::rawFactor);
+    jmva_2 = aTrailingJet.getProperty(PropertyEnum::puId);
 
     //VBF system
     mjj = (aLeadingJet.getP4()+aTrailingJet.getP4()).M();
@@ -893,17 +972,17 @@ void HTTSynchNTuple::fillJets(const std::vector<HTTParticle> &jets){
     bpt_1 = bjets.at(0).getP4().Pt();
     beta_1 = bjets.at(0).getP4().Eta();
     bphi_1 = bjets.at(0).getP4().Phi();
-    brawf_1 = bjets.at(0).getProperty(PropertyEnum::rawPt)/bjets.at(0).getP4().Pt();
-    bmva_1 = bjets.at(0).getProperty(PropertyEnum::PUJetID);
-    bcsv_1 = bjets.at(0).getProperty(PropertyEnum::bCSVscore);
+    brawf_1 = 1. - bjets.at(0).getProperty(PropertyEnum::rawFactor);
+    bmva_1 = bjets.at(0).getProperty(PropertyEnum::puId);
+    bcsv_1 = bjets.at(0).getProperty(PropertyEnum::btagCSVV2);
     if(bjets.size()>1){
       //trailing b-jet sorted by pt
       bpt_2 = bjets.at(1).getP4().Pt();
       beta_2 = bjets.at(1).getP4().Eta();
       bphi_2 = bjets.at(1).getP4().Phi();
-      brawf_2 = bjets.at(1).getProperty(PropertyEnum::rawPt)/bjets.at(1).getP4().Pt();
-      bmva_2 = bjets.at(1).getProperty(PropertyEnum::PUJetID);
-      bcsv_2 = bjets.at(1).getProperty(PropertyEnum::bCSVscore);
+      brawf_2 = 1. - bjets.at(1).getProperty(PropertyEnum::rawFactor);
+      bmva_2 = bjets.at(1).getProperty(PropertyEnum::puId);
+      bcsv_2 = bjets.at(1).getProperty(PropertyEnum::btagCSVV2);
     }
   }
   return;
@@ -937,7 +1016,7 @@ bool HTTSynchNTuple::selectEvent(const HTTEvent &event, HTTPair &pair){
   if(decayMode_=="MuTau"){
     if( !(std::abs(pair.getLeg1().getP4().Eta())<2.4) )
       return false;
-    if( !(pair.getLeg1().getP4().Pt()>23) )
+    if( !(pair.getLeg1().getP4().Pt()>20) )
       return false;
     if( !(std::abs(pair.getLeg2().getP4().Eta())<2.3) )
       return false;
@@ -1160,9 +1239,9 @@ bool HTTSynchNTuple::promoteBJet(const HTTParticle &jet){
   if(!reader) initializeBTagCorrections();
 
   BTagEntry::JetFlavor jetFlavour;
-  if(std::abs(jet.getProperty(PropertyEnum::Flavour))==5)//b-quark
+  if(std::abs(jet.getProperty(PropertyEnum::partonFlavour))==5)//b-quark
     jetFlavour = BTagEntry::FLAV_B;
-  else if(std::abs(jet.getProperty(PropertyEnum::Flavour))==4)//c-quark
+  else if(std::abs(jet.getProperty(PropertyEnum::partonFlavour))==4)//c-quark
     jetFlavour = BTagEntry::FLAV_C;
   else //light quark, gluon or undefined
     jetFlavour = BTagEntry::FLAV_UDSG;
@@ -1171,14 +1250,14 @@ bool HTTSynchNTuple::promoteBJet(const HTTParticle &jet){
 					    jetFlavour,
 					    jet.getP4().Eta(),
 					    jet.getP4().Pt()
-					    //,jet.getProperty(PropertyEnum::bCSVscore) //MB: it is not needed when WP is definied
+					    //,jet.getProperty(PropertyEnum::btagCSVV2) //MB: it is not needed when WP is definied
 					    );
   rand_->SetSeed((int)((jet.getP4().Eta()+5)*100000));
   double rand_num = rand_->Rndm();
   //debug
   //std::cout<<"\tbtag_SF(flav,CSVv2): "<<btag_SF
   //	   <<"("<<jetFlavour<<","
-  //	   <<jet.getProperty(PropertyEnum::bCSVscore)<<")"<<std::endl;
+  //	   <<jet.getProperty(PropertyEnum::btagCSVV2)<<")"<<std::endl;
   //std::cout<<"\tbtag_rand_num: "<<rand_num<<std::endl;
   if(btag_SF>1){
     double tagging_efficiency = 1;

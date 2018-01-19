@@ -95,7 +95,7 @@ enum sysEffects {NOMINAL,
                  E2TUp, E2TDown,
                  DUMMY_SYS,
 ///Place systematic effects not affecting the SV calculation after DUMMY_SYS
-///all quantities for following syst effects are calculated onfly, no need to rerun
+///all quantities for following syst effects are calculated on fly, no need to rerun
 ///the ntuple making step.
                  J2TUp, J2TDown,
                  ZPtUp, ZPtDown,

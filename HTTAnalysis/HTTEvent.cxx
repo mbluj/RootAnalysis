@@ -7,16 +7,35 @@
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
+const TString HTTEvent::tauIDStrings[ntauIds] = {
+  "againstMuonLoose3",
+  "againstMuonTight3",
+  "againstElectronVLooseMVA6",
+  "againstElectronLooseMVA6",
+  "againstElectronMediumMVA6",
+  "againstElectronTightMVA6",
+  "againstElectronVTightMVA6",
+  "byVLooseIsolationMVArun2v1DBoldDMwLT",
+  "byLooseIsolationMVArun2v1DBoldDMwLT",
+  "byMediumIsolationMVArun2v1DBoldDMwLT",
+  "byTightIsolationMVArun2v1DBoldDMwLT",
+  "byVTightIsolationMVArun2v1DBoldDMwLT",
+  "byVVTightIsolationMVArun2v1DBoldDMwLT"
+};
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 void HTTEvent::clear(){
 
   runId = 0;
   eventId = 0;
+  lsId = 0;
 
   nPU = 0;
   nPV = 0;
 
   mcWeight = 1.0;
   ptReWeight = 1.0;
+  ptReWeightSUSY = 1.0;
   lheHt = 1.0;
   lheNOutPartons = 0;
   aMCatNLOweight = 1.0;
@@ -42,10 +61,15 @@ void HTTEvent::clear(){
   AODPV*=0;
   refittedPV*=0;
 
+  met*=0;
+  bosP4*=0;
+  bosVisP4*=0;
+
   isRefit = false;
 
   nTracksInRefit = 0;
 
+  metFilterDecision = 0;
   selectionWord.ResetAllBits();
 }
 ////////////////////////////////////////////////
@@ -69,7 +93,6 @@ void HTTParticle::clear(){
 const TLorentzVector & HTTParticle::getNominalShiftedP4() const{
 
   //Corrections of nominal tau-scale: https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendation13TeV#Tau_energy_scale
-  float TES_1p=-0.005, TES_1ppi0=0.011, TES_3p=0.006;
 
   //correct nominal scale of genuine taus
   if(std::abs(getPDGid())==15 && getProperty(PropertyEnum::mc_match)==5){

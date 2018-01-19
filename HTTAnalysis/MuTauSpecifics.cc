@@ -73,13 +73,20 @@ void MuTauSpecifics::testAllCategories(const HTTAnalysis::sysEffects & aSystEffe
                 if(myAnalyzer->aEvent.tauIDStrings[iBit]=="againstMuonTight3") tauIDmask |= (1<<iBit);
                 if(myAnalyzer->aEvent.tauIDStrings[iBit]=="againstElectronVLooseMVA6") tauIDmask |= (1<<iBit);
         }
-        bool tauID = ( (int)myAnalyzer->aLeg2.getProperty(PropertyEnum::tauID) & tauIDmask) == tauIDmask;
+	int tauIDset = (int)myAnalyzer->aLeg2.getProperty(PropertyEnum::idAntiMu);
+	tauIDset += (int)std::pow(2,HTTEvent::againstEIdOffset)*(int)myAnalyzer->aLeg2.getProperty(PropertyEnum::idAntiEle);
+	tauIDset += (int)std::pow(2,HTTEvent::mvaIsoIdOffset)*(int)myAnalyzer->aLeg2.getProperty(PropertyEnum::idMVAoldDM);
+        bool tauID = ( tauIDset & tauIDmask) == tauIDmask;
 
         unsigned int muonIDmask = (1<<7);
+	/*fine with NanoAOD?
         bool muonID = true;
         if(myAnalyzer->aEvent.getRunId()>278808 || myAnalyzer->aEvent.getRunId()==1) {
                 muonID = ((int)myAnalyzer->aLeg1.getProperty(PropertyEnum::muonID) & muonIDmask) == muonIDmask;
         }
+	*/
+        bool muonID = myAnalyzer->aLeg1.getProperty(PropertyEnum::mediumId)>0;
+
 
         bool muonKinematics = myAnalyzer->aLeg1.getP4(aSystEffect).Pt()>20 && fabs(myAnalyzer->aLeg1.getP4(aSystEffect).Eta())<2.1;
 
@@ -124,7 +131,7 @@ void MuTauSpecifics::testAllCategories(const HTTAnalysis::sysEffects & aSystEffe
         for(auto itJet: myAnalyzer->aSeparatedJets) {
                 if(std::abs(itJet.getP4(aSystEffect).Eta())<2.4 &&
                    itJet.getP4(aSystEffect).Pt()>20 && //MB needed??
-                   itJet.getProperty(PropertyEnum::bCSVscore)>0.8484 && //Medium WP
+                   itJet.getProperty(PropertyEnum::btagCSVV2)>0.8484 && //Medium WP
                    promoteBJet(itJet,aSystEffect,"central")//FIXME: need to variate central to up/down
                    ) ++myAnalyzer->nBJets;
         }
@@ -162,8 +169,8 @@ void MuTauSpecifics::testAllCategories(const HTTAnalysis::sysEffects & aSystEffe
         bool vbf = myAnalyzer->aLeg2.getP4(aSystEffect).Perp()>40 && myAnalyzer->nJets30>=2 && jetsMass>300 && higgsPt > 50;
         
         bool wSelection = myAnalyzer->aPair.getMTMuon(aSystEffect)>80;
-        bool muonAntiIso = myAnalyzer->aLeg1.getProperty(PropertyEnum::combreliso)>0.15 && myAnalyzer->aLeg1.getProperty(PropertyEnum::combreliso)<0.30;
-        bool muonIso = myAnalyzer->aLeg1.getProperty(PropertyEnum::combreliso)<0.15;
+        bool muonAntiIso = myAnalyzer->aLeg1.getProperty(PropertyEnum::pfRelIso04_all)>0.15 && myAnalyzer->aLeg1.getProperty(PropertyEnum::pfRelIso04_all)<0.30;
+        bool muonIso = myAnalyzer->aLeg1.getProperty(PropertyEnum::pfRelIso04_all)<0.15;
 
         bool ss = myAnalyzer->aLeg2.getCharge()*myAnalyzer->aLeg1.getCharge() == 1;
         bool os = myAnalyzer->aLeg2.getCharge()*myAnalyzer->aLeg1.getCharge() == -1;
@@ -247,7 +254,7 @@ float MuTauSpecifics::getLeg1Correction(const HTTAnalysis::sysEffects & aSystEff
 
         return getLeptonCorrection(myAnalyzer->aLeg1.getP4(aSystEffect).Eta(),
                                    myAnalyzer->aLeg1.getP4(aSystEffect).Pt(),
-                                   myAnalyzer->aLeg1.getProperty(PropertyEnum::combreliso),
+                                   myAnalyzer->aLeg1.getProperty(PropertyEnum::pfRelIso04_all),
                                    HTTAnalysis::hadronicTauDecayModes::tauDecayMuon, false, myAnalyzer->aLeg1.getProperty(PropertyEnum::mc_match));
 
 }
@@ -260,7 +267,7 @@ float MuTauSpecifics::getLeg2Correction(const HTTAnalysis::sysEffects & aSystEff
         
         return getLeptonCorrection(myAnalyzer->aLeg2.getP4(aSystEffect).Eta(),
                                    myAnalyzer->aLeg2.getP4(aSystEffect).Pt(),
-                                   myAnalyzer->aLeg2.getProperty(PropertyEnum::byIsolationMVArun2v1DBoldDMwLTraw),
+                                   myAnalyzer->aLeg2.getProperty(PropertyEnum::rawMVAoldDM),
                                    static_cast<HTTAnalysis::hadronicTauDecayModes>(myAnalyzer->aLeg2.getProperty(PropertyEnum::decayMode)),
                                    useTauTrigger, myAnalyzer->aLeg2.getProperty(PropertyEnum::mc_match), useXTrigger);
 

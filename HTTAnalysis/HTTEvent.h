@@ -21,40 +21,11 @@ class HTTEvent{
 
   enum sampleTypeEnum {DUMMY = -1, DATA = 0, DY = 1, DYLowM = 2, WJets=3, TTbar=4, h=5, H=6, A=7};
 
-  ///Copy from LLRHiggsTauTau/NtupleProducer/plugins/HTauTauNtuplizer.cc
-  static const int ntauIds = 30;
-  TString tauIDStrings[ntauIds] = {
-    "byLoosePileupWeightedIsolation3Hits",
-    "byMediumPileupWeightedIsolation3Hits",
-    "byTightPileupWeightedIsolation3Hits",
-    "byLooseCombinedIsolationDeltaBetaCorr3Hits",
-    "byMediumCombinedIsolationDeltaBetaCorr3Hits",
-    "byTightCombinedIsolationDeltaBetaCorr3Hits",
-    "againstMuonLoose3",
-    "againstMuonTight3",
-    "againstElectronVLooseMVA6",
-    "againstElectronLooseMVA6",
-    "againstElectronMediumMVA6",
-    "againstElectronTightMVA6",
-    "againstElectronVTightMVA6",
-    "byVLooseIsolationMVArun2v1DBoldDMwLT",
-    "byLooseIsolationMVArun2v1DBoldDMwLT",
-    "byMediumIsolationMVArun2v1DBoldDMwLT",
-    "byTightIsolationMVArun2v1DBoldDMwLT",
-    "byVTightIsolationMVArun2v1DBoldDMwLT",
-    "byVLooseIsolationMVArun2v1DBnewDMwLT",
-    "byLooseIsolationMVArun2v1DBnewDMwLT",
-    "byMediumIsolationMVArun2v1DBnewDMwLT",
-    "byTightIsolationMVArun2v1DBnewDMwLT",
-    "byVTightIsolationMVArun2v1DBnewDMwLT",
-    "byLooseCombinedIsolationDeltaBetaCorr3HitsdR03",
-    "byMediumCombinedIsolationDeltaBetaCorr3HitsdR03",
-    "byTightCombinedIsolationDeltaBetaCorr3HitsdR03",
-    "byLooseIsolationMVArun2v1DBdR03oldDMwLT",
-    "byMediumIsolationMVArun2v1DBdR03oldDMwLT",
-    "byTightIsolationMVArun2v1DBdR03oldDMwLT",
-    "byVTightIsolationMVArun2v1DBdR03oldDMwLT"
-  };
+  static const int ntauIds = 13;
+  static const int againstMuIdOffset = 0;
+  static const int againstEIdOffset = againstMuIdOffset+2;
+  static const int mvaIsoIdOffset = againstEIdOffset+5;
+  static const TString tauIDStrings[ntauIds];//implementation in cxx
 
   HTTEvent(){clear();}
 
@@ -64,6 +35,8 @@ class HTTEvent{
   void setRun(unsigned int x){runId = x;}
 
   void setEvent(unsigned long int x){eventId = x;}
+
+  void setLS(unsigned long int x){lsId = x;}
 
   void setNPU(float x){nPU = x;}
 
@@ -88,6 +61,8 @@ class HTTEvent{
   void setDecayModePlus(int x){decayModePlus = x;}
 
   void setDecayModeBoson(int x){decayModeBoson = x;}
+
+  void setGenBosonP4(const TLorentzVector &p4, const TLorentzVector &visP4) {bosP4 = p4; bosVisP4 = visP4; }
 
   void setGenPV(const TVector3 & aPV) {genPV = aPV;}
 
@@ -116,6 +91,8 @@ class HTTEvent{
 
   unsigned long int getEventId() const {return eventId;}
 
+  unsigned long int getLSId() const {return lsId;}
+
   float getNPU() const {return nPU;}
 
   unsigned int getNPV() const {return nPV;}
@@ -140,6 +117,8 @@ class HTTEvent{
 
   int getDecayModeBoson() const {return decayModeBoson;}
 
+  TLorentzVector getGenBosonP4(bool visP4=false) const { return visP4 ? bosVisP4 : bosP4 ; }
+
   TVector2 getMET() const {return met;}
 
   const TVector3 & getGenPV() const {return genPV;}
@@ -158,9 +137,9 @@ class HTTEvent{
 
  private:
 
-  ///Event run and number
+  ///Event run, run and LS number
   unsigned int runId;
-  unsigned long int eventId;
+  unsigned long int eventId, lsId;
 
   //Generator event weight
   float mcWeight;
@@ -188,6 +167,9 @@ class HTTEvent{
 
   ///Boson (H, Z, W) decay mode
   int decayModeBoson;
+
+  ///Boson (H, Z, W) p4 and visible p4
+  TLorentzVector bosP4, bosVisP4;
 
   ///Tau decay modes
   int decayModeMinus, decayModePlus;
@@ -257,7 +239,7 @@ class HTTParticle{
 
   const TVector3 & getPCAGenPV() const {return pcaGenPV;}
 
-  int getPDGid() const {return getProperty(PropertyEnum::PDGId);}
+  int getPDGid() const {return getProperty(PropertyEnum::pdgId);}
 
   int getCharge() const {return getProperty(PropertyEnum::charge);}
 
@@ -265,6 +247,7 @@ class HTTParticle{
 
   bool hasTriggerMatch(TriggerEnum index) const {return (unsigned int)getProperty(PropertyEnum::isGoodTriggerType)& (1<<(unsigned int)index) &&
                                                         (unsigned int)getProperty(PropertyEnum::FilterFired)& (1<<(unsigned int)index);}
+
  private:
 
   ///Return four-momentum modified according DATA/MC energy scale factors.
@@ -298,9 +281,22 @@ class HTTParticle{
   ///LLR ntuple format
   std::vector<Double_t> properties;
 
+  //Corrections of nominal tau-scale: https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendation13TeV#Tau_energy_scale 
+  /*dummy
+  static constexpr float TES_1p=0.0;
+  static constexpr float TES_1ppi0=0.0;
+  static constexpr float TES_3p=0.0;
+  */
+  /*early 2016 as SM HTT*/
+  static constexpr float TES_1p=-0.018;
+  static constexpr float TES_1ppi0=0.010;
+  static constexpr float TES_3p=0.004;
+  /**/
+  /*final 2016
   static constexpr float TES_1p=-0.005;
   static constexpr float TES_1ppi0=0.011;
   static constexpr float TES_3p=0.006;
+  */
   static constexpr float TES = 0.012;
   static constexpr float EES = 0.03;
   static constexpr float MES = 0.03;
@@ -333,9 +329,9 @@ class HTTPair{
 
   void setMTLeg2(const float & aMT) {mtLeg2 = aMT;}
 
-  void setLeg1(const HTTParticle &aParticle){leg1 = aParticle;}
-
-  void setLeg2(const HTTParticle &aParticle){leg2 = aParticle;}
+  void setLeg1(const HTTParticle &aParticle, int idx=-1){leg1 = aParticle; indexLeg1=idx;}
+ 
+  void setLeg2(const HTTParticle &aParticle, int idx=-1){leg2 = aParticle; indexLeg2=idx;}
 
   void setMETMatrix(float m00, float m01, float m10, float m11) {metMatrix.push_back(m00); metMatrix.push_back(m01); metMatrix.push_back(m10); metMatrix.push_back(m11);}
 
@@ -357,6 +353,10 @@ class HTTPair{
   const HTTParticle & getLeg1() const {return leg1;}
 
   const HTTParticle & getLeg2() const {return leg2;}
+
+  int getIndexLeg1() {return indexLeg1;}
+
+  int getIndexLeg2() {return indexLeg2;}
 
   const HTTParticle & getMuon() const {return abs(leg1.getPDGid())==13 ? leg1 : leg2; }
 
@@ -401,6 +401,7 @@ class HTTPair{
 
   ///Pair legs
   HTTParticle leg1, leg2;
+  int indexLeg1, indexLeg2;
 
 };
 

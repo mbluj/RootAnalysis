@@ -83,15 +83,21 @@ void TauTauSpecifics::testAllCategories(const HTTAnalysis::sysEffects & aSystEff
                 if(myAnalyzer->aEvent.tauIDStrings[iBit]=="againstMuonLoose3") tauIDmask |= (1<<iBit);
                 if(myAnalyzer->aEvent.tauIDStrings[iBit]=="againstElectronVLooseMVA6") tauIDmask |= (1<<iBit);
         }
+        int tauIDsetLeg1 = (int)myAnalyzer->aLeg1.getProperty(PropertyEnum::idAntiMu);
+        tauIDsetLeg1 += (int)std::pow(2,HTTEvent::againstEIdOffset)*(int)myAnalyzer->aLeg1.getProperty(PropertyEnum::idAntiEle);
+        tauIDsetLeg1 += (int)std::pow(2,HTTEvent::mvaIsoIdOffset)*(int)myAnalyzer->aLeg1.getProperty(PropertyEnum::idMVAoldDM);
+        bool tau1ID = ( tauIDsetLeg1 & tauIDmask) == tauIDmask;
+        bool tau1IsoT = ( tauIDsetLeg1 & tauIsoTmask) == tauIsoTmask;
+        bool tau1IsoM = ( tauIDsetLeg1 & tauIsoMmask) == tauIsoMmask;
+        bool tau1IsoL = ( tauIDsetLeg1 & tauIsoLmask) == tauIsoLmask;
 
-        bool tau1ID = ( (int)myAnalyzer->aLeg1.getProperty(PropertyEnum::tauID) & tauIDmask) == tauIDmask;
-        bool tau1IsoT = ( (int)myAnalyzer->aLeg1.getProperty(PropertyEnum::tauID) & tauIsoTmask) == tauIsoTmask;
-        bool tau1IsoM = ( (int)myAnalyzer->aLeg1.getProperty(PropertyEnum::tauID) & tauIsoMmask) == tauIsoMmask;
-        bool tau1IsoL = ( (int)myAnalyzer->aLeg1.getProperty(PropertyEnum::tauID) & tauIsoLmask) == tauIsoLmask;
-        bool tau2ID = ( (int)myAnalyzer->aLeg2.getProperty(PropertyEnum::tauID) & tauIDmask) == tauIDmask;
-        bool tau2IsoT = ( (int)myAnalyzer->aLeg2.getProperty(PropertyEnum::tauID) & tauIsoTmask) == tauIsoTmask;
-        bool tau2IsoM = ( (int)myAnalyzer->aLeg2.getProperty(PropertyEnum::tauID) & tauIsoMmask) == tauIsoMmask;
-        bool tau2IsoL = ( (int)myAnalyzer->aLeg2.getProperty(PropertyEnum::tauID) & tauIsoLmask) == tauIsoLmask;
+        int tauIDsetLeg2 = (int)myAnalyzer->aLeg2.getProperty(PropertyEnum::idAntiMu);
+        tauIDsetLeg2 += (int)std::pow(2,HTTEvent::againstEIdOffset)*(int)myAnalyzer->aLeg2.getProperty(PropertyEnum::idAntiEle);
+        tauIDsetLeg2 += (int)std::pow(2,HTTEvent::mvaIsoIdOffset)*(int)myAnalyzer->aLeg2.getProperty(PropertyEnum::idMVAoldDM);
+        bool tau2ID = ( tauIDsetLeg2 & tauIDmask) == tauIDmask;
+        bool tau2IsoT = ( tauIDsetLeg2 & tauIsoTmask) == tauIsoTmask;
+        bool tau2IsoM = ( tauIDsetLeg2 & tauIsoMmask) == tauIsoMmask;
+        bool tau2IsoL = ( tauIDsetLeg2 & tauIsoLmask) == tauIsoLmask;
 
         bool fullIso = tau1IsoT && tau2IsoT;
         bool relaxedIso = (tau1IsoM && tau2IsoL) || (tau2IsoM && tau1IsoL);
@@ -140,7 +146,7 @@ void TauTauSpecifics::testAllCategories(const HTTAnalysis::sysEffects & aSystEff
         for(auto itJet: myAnalyzer->aSeparatedJets) {
                 if(std::abs(itJet.getP4(aSystEffect).Eta())<2.4 &&
                    itJet.getP4(aSystEffect).Pt()>20 && //MB needed??
-                   itJet.getProperty(PropertyEnum::bCSVscore)>0.8484 && //Medium WP
+                   itJet.getProperty(PropertyEnum::btagCSVV2)>0.8484 && //Medium WP
                    promoteBJet(itJet,aSystEffect,"central")//FIXME: need to variate central to up/down
                    ) ++myAnalyzer->nBJets;
         }
@@ -222,7 +228,7 @@ float TauTauSpecifics::getLeg1Correction(const HTTAnalysis::sysEffects & aSystEf
 
         return getLeptonCorrection(myAnalyzer->aLeg1.getP4().Eta(),
                                    myAnalyzer->aLeg1.getP4().Pt(),
-                                   myAnalyzer->aLeg1.getProperty(PropertyEnum::byIsolationMVArun2v1DBoldDMwLTraw),
+                                   myAnalyzer->aLeg1.getProperty(PropertyEnum::rawMVAoldDM),
                                    static_cast<HTTAnalysis::hadronicTauDecayModes>(myAnalyzer->aLeg1.getProperty(PropertyEnum::decayMode)),true, 
                                    myAnalyzer->aLeg1.getProperty(PropertyEnum::mc_match));
 }
@@ -232,7 +238,7 @@ float TauTauSpecifics::getLeg2Correction(const HTTAnalysis::sysEffects & aSystEf
 
         return getLeptonCorrection(myAnalyzer->aLeg2.getP4().Eta(),
                                    myAnalyzer->aLeg2.getP4().Pt(),
-                                   myAnalyzer->aLeg2.getProperty(PropertyEnum::byIsolationMVArun2v1DBoldDMwLTraw),
+                                   myAnalyzer->aLeg2.getProperty(PropertyEnum::rawMVAoldDM),
                                    static_cast<HTTAnalysis::hadronicTauDecayModes>(myAnalyzer->aLeg2.getProperty(PropertyEnum::decayMode)),true, 
                                    myAnalyzer->aLeg2.getProperty(PropertyEnum::mc_match));
 }

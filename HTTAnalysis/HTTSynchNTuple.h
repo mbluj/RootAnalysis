@@ -135,6 +135,8 @@ class HTTSynchNTuple: public Analyzer{
   Float_t trackingweight_2;
   Float_t effweight;
   Float_t weight;
+  Float_t topWeight_run1;//new
+  Float_t zPtReweightWeight;//new
   //Leg 1 (leading tau for tt; electon for et,em; muon for mt)
   Float_t pt_1;
   Float_t phi_1;
@@ -284,8 +286,25 @@ class HTTSynchNTuple: public Analyzer{
   Bool_t trg_singletau_1;
   Bool_t trg_singletau_2;
   Bool_t trg_doubletau;
-  Bool_t trg_muonelectron;
-  
+  Bool_t trg_muonelectron; 
+  Bool_t trg_mutaucross;//new
+  //other
+  Float_t gen_Mll;//new
+  Float_t gen_ll_px;
+  Float_t gen_ll_py;
+  Float_t gen_top_pt_1;
+  Float_t gen_top_pt_2;
+  Int_t passBadMuonFilter;
+  Int_t passBadChargedHadronFilter;
+  Int_t flagHBHENoiseFilter;
+  Int_t flagHBHENoiseIsoFilter;
+  Int_t flagEcalDeadCellTriggerPrimitiveFilter;
+  Int_t flagGoodVertices;
+  Int_t flagEeBadScFilter;
+  Int_t flagGlobalTightHalo2016Filter;
+  Int_t Flag_badMuons;
+  Int_t Flag_duplicateMuons;
+
  private:
 
   std::map<std::string,int> *idMasks_;

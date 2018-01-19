@@ -1,11 +1,10 @@
-#!/usr/bin/env python
 from ROOT import TFile,TTree
 
+
 input  = 'RootAnalysis_SynchMuTau.root'
-#output = 'WAW_SYNCFILE_SUSYGluGluToBBHToTauTau_M-1000_2016_mt_0.root'
-output = 'WAW_SYNCFILE_VBF_MT_12_07.root'
+output = 'WAW_SYNCFILE_Nano_VBFHToTauTau_M125_powheg_mt_171214.root'
 #input  = 'RootAnalysis_SynchTT.root'
-#output = 'WAW_SYNCFILE_SUSYGluGluToBBHToTauTau_M-1000_2016_tt_0.root'
+#output = 'WAW_SYNCFILE_Nano_VBFHToTauTau_M125_powheg_tt_171214.root'
 
 fin = TFile(input)
 t = fin.Get("Summary/tree")

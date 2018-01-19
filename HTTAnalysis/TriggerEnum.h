@@ -12,5 +12,5 @@ HLT_VLooseIsoPFTau140_Trk50_eta2p1 = 10,
 HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg = 11, 
 HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg = 12, 
 HLT_DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_Reg = 13, 
-NONE = 18
+NONE = 14
 };
