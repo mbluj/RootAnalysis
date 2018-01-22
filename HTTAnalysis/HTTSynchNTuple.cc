@@ -544,7 +544,7 @@ void HTTSynchNTuple::fillEventID(const HTTEvent &event){
   //Pielup
   npv = event.getNPV();
   npu = event.getNPU();
-  rho = 0; //FIXME, not in ntuples
+  rho = event.getRho();
   puweight = getPUWeight(npu);
   //ptweights (Z or top)
   zPtReweightWeight = event.getPtReWeight();
