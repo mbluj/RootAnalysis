@@ -153,9 +153,16 @@ const TLorentzVector & HTTParticle::getSystScaleP4(HTTAnalysis::sysEffects type)
     return getShiftedP4(1+direction*MES,getProperty(PropertyEnum::decayMode)==0);
   }
   if(std::abs(getPDGid())==98){
-    if(type!=HTTAnalysis::JESUp && type!=HTTAnalysis::JESDown) return p4;
-    float JES = getProperty(PropertyEnum::jecUnc);
-    if(type==HTTAnalysis::JESDown) JES*=-1;
+    if(type!=HTTAnalysis::JESUp && type!=HTTAnalysis::JESDown) return p4;    
+    float JES = 0;
+    switch(type) {
+    case HTTAnalysis::JESUp :
+      JES = getProperty(PropertyEnum::NONE+JecUncEnum::Total);
+      break;
+    case HTTAnalysis::JESDown:
+      JES = getProperty(PropertyEnum::NONE+JecUncEnum::NONE+JecUncEnum::Total);;
+      break;
+    }
     return getShiftedP4(1+JES,false);
   }
 
